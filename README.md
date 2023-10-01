@@ -1,4 +1,4 @@
-## Aery - with public everything for use with barebones `bevy_ecs`
+## Aery - for use with barebones `bevy_ecs`
 A plugin that adds a subset of Entity Relationship features to Bevy using Non-fragmenting
 ZST relations.
 
