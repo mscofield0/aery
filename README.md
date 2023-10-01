@@ -18,7 +18,7 @@ ZST relations.
 Non exhaustive. Covers most common parts.
 
 ```rust
-use bevy::prelude::*;
+use bevy_ecs::prelude::*;
 use aery::prelude::*;
 
 fn main() {

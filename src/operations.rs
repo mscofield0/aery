@@ -2,7 +2,7 @@ use crate::{
     relation::{EdgeWQ, EdgeWQItem, Relation, ZstOrPanic},
     tuple_traits::*,
 };
-use bevy::ecs::{
+use bevy_ecs::{
     entity::Entity,
     query::{ReadOnlyWorldQuery, WorldQuery},
     system::Query,
@@ -10,7 +10,7 @@ use bevy::ecs::{
 use std::{borrow::Borrow, collections::VecDeque, marker::PhantomData};
 
 type EdgeIter<'a> = std::iter::Flatten<
-    std::option::IntoIter<std::iter::Copied<indexmap::set::Iter<'a, bevy::prelude::Entity>>>,
+    std::option::IntoIter<std::iter::Copied<indexmap::set::Iter<'a, bevy_ecs::prelude::Entity>>>,
 >;
 
 /// Struct to track inner product iteration.
@@ -156,7 +156,7 @@ impl<R: Relation> Traversal for BreadthFirstDescent<R> {
 ///
 /// # Illustration:
 /// ```
-/// use bevy::prelude::*;
+/// use bevy_ecs::prelude::*;
 /// use aery::prelude::*;
 ///
 /// #[derive(Component)]
@@ -262,7 +262,7 @@ where
 ///
 /// # Illustration:
 /// ```
-/// use bevy::prelude::*;
+/// use bevy_ecs::prelude::*;
 /// use aery::prelude::*;
 ///
 /// #[derive(Component)]
@@ -381,7 +381,7 @@ where
 /// functions.
 ///
 /// ```
-///# use bevy::prelude::*;
+///# use bevy_ecs::prelude::*;
 ///# use aery::prelude::*;
 ///#
 ///# #[derive(Component)]
@@ -416,7 +416,7 @@ where
 ///
 /// ## FastForward Illustration:
 /// ```
-/// use bevy::prelude::*;
+/// use bevy_ecs::prelude::*;
 /// use aery::prelude::*;
 ///
 /// #[derive(Component)]
@@ -516,7 +516,7 @@ where
 /// ```
 /// ## Walk Illustration:
 /// ```
-/// use bevy::prelude::*;
+/// use bevy_ecs::prelude::*;
 /// use aery::prelude::*;
 ///
 /// #[derive(Component)]
@@ -583,7 +583,7 @@ where
 /// ```
 /// ## Probe Illustration:
 /// ```
-/// use bevy::prelude::*;
+/// use bevy_ecs::prelude::*;
 /// use aery::prelude::*;
 ///
 /// #[derive(Component)]
@@ -1128,7 +1128,7 @@ where
 #[allow(unused_variables)]
 mod compile_tests {
     use crate::{self as aery, prelude::*};
-    use bevy::prelude::*;
+    use bevy_ecs::prelude::*;
 
     #[derive(Component)]
     struct A;
@@ -1213,7 +1213,25 @@ mod compile_tests {
 #[cfg(test)]
 mod tests {
     use crate::{self as aery, prelude::*};
-    use bevy::{app::AppExit, prelude::*};
+    use bevy_ecs::{prelude::*, world, schedule::ScheduleLabel};
+
+    #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+    struct Update;
+
+    #[derive(ScheduleLabel, Debug, Clone, PartialEq, Eq, Hash)]
+    struct DefaultSchedule;
+
+    fn example_world_run<M>(systems: impl IntoSystemConfigs<M>) {
+        let mut world = World::default();
+        init_aery(&mut world);
+        world.insert_resource(Events::<DummyEvent>::default());
+    
+        let mut schedule = Schedule::default();
+        schedule.add_systems(systems);
+        
+        world.add_schedule(schedule, DefaultSchedule);
+        world.run_schedule(DefaultSchedule);
+    }
 
     #[derive(Component)]
     struct S;
@@ -1243,6 +1261,9 @@ mod tests {
     struct EntityList {
         entities: [Entity; 9],
     }
+
+    #[derive(Event)]
+    pub struct DummyEvent;
 
     #[test]
     fn left_scarce_permutations_o() {
@@ -1296,7 +1317,7 @@ mod tests {
         }
 
         fn test(
-            mut exit: EventWriter<AppExit>,
+            mut exit: EventWriter<DummyEvent>,
             entity_list: Res<EntityList>,
             a: Query<&A>,
             b: Query<&B>,
@@ -1316,13 +1337,10 @@ mod tests {
             assert_eq!(2, c.get(c1).unwrap().0);
             assert_eq!(0, c.get(c2).unwrap().0);
 
-            exit.send(AppExit);
+            exit.send(DummyEvent);
         }
 
-        App::new()
-            .add_plugins(Aery)
-            .add_systems(Update, (init, run, test).chain())
-            .run();
+        example_world_run((init, run, test).chain().in_set(Update));
     }
 
     #[test]
@@ -1379,7 +1397,7 @@ mod tests {
         }
 
         fn test(
-            mut exit: EventWriter<AppExit>,
+            mut exit: EventWriter<DummyEvent>,
             entity_list: Res<EntityList>,
             a: Query<&A>,
             b: Query<&B>,
@@ -1399,13 +1417,10 @@ mod tests {
             assert_eq!(0, c.get(c1).unwrap().0);
             assert_eq!(2, c.get(c2).unwrap().0);
 
-            exit.send(AppExit);
+            exit.send(DummyEvent);
         }
 
-        App::new()
-            .add_plugins(Aery)
-            .add_systems(Update, (init, run, test).chain())
-            .run();
+        example_world_run((init, run, test).chain().in_set(Update));
     }
 
     #[test]
@@ -1470,7 +1485,7 @@ mod tests {
         }
 
         fn test(
-            mut exit: EventWriter<AppExit>,
+            mut exit: EventWriter<DummyEvent>,
             entity_list: Res<EntityList>,
             a: Query<&A>,
             b: Query<&B>,
@@ -1483,13 +1498,10 @@ mod tests {
             assert_eq!(1, b.get(b2).unwrap().0);
             assert_eq!(2, c.get(c1).unwrap().0);
 
-            exit.send(AppExit);
+            exit.send(DummyEvent);
         }
 
-        App::new()
-            .add_plugins(Aery)
-            .add_systems(Update, (init, run, test).chain())
-            .run();
+        example_world_run((init, run, test).chain().in_set(Update));
     }
 
     #[test]
@@ -1554,7 +1566,7 @@ mod tests {
         }
 
         fn test(
-            mut exit: EventWriter<AppExit>,
+            mut exit: EventWriter<DummyEvent>,
             entity_list: Res<EntityList>,
             a: Query<&A>,
             b: Query<&B>,
@@ -1568,12 +1580,9 @@ mod tests {
             assert_eq!(2, c.get(c0).unwrap().0);
             assert_eq!(2, c.get(c2).unwrap().0);
 
-            exit.send(AppExit);
+            exit.send(DummyEvent);
         }
 
-        App::new()
-            .add_plugins(Aery)
-            .add_systems(Update, (init, run, test).chain())
-            .run();
+        example_world_run((init, run, test).chain().in_set(Update));
     }
 }

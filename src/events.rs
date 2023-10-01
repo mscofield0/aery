@@ -1,6 +1,6 @@
 use crate::{relation::RelationId, Var};
 
-use bevy::ecs::{entity::Entity, event::Event};
+use bevy_ecs::{entity::Entity, event::Event};
 use std::cmp::PartialEq;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -27,7 +27,7 @@ pub struct TargetEvent {
 impl TargetEvent {
     /// Function to check if an event meets a critera.
     /// ```
-    /// use bevy::prelude::*;
+    /// use bevy_ecs::prelude::*;
     /// use aery::prelude::*;
     ///
     /// #[derive(Component)]

@@ -2,7 +2,7 @@
 #![allow(clippy::too_many_arguments)]
 #![allow(clippy::let_unit_value)]
 
-//! # Aery
+//! # Aery - with public everything for use with barebones `bevy_ecs`
 //! A plugin that adds a subset of Entity Relationship features to Bevy using Non-fragmenting
 //! ZST relations.
 //!
@@ -18,15 +18,12 @@
 //! # API tour:
 //! Non exhaustive. Covers most common parts.
 //! ```
-//! use bevy::prelude::*;
+//! use bevy_ecs::prelude::*;
 //! use aery::prelude::*;
 //!
 //! fn main() {
-//!     App::new()
-//!         .add_plugins(Aery)
-//!         .add_systems(Startup, setup)
-//!         .add_systems(Update, (alert, sys))
-//!         .run();
+//!     let mut world = World::default();
+//!     init_aery(&mut world);
 //! }
 //!
 //! #[derive(Component)]
@@ -93,10 +90,7 @@ pub mod tuple_traits;
 use commands::RefragmentHooks;
 use events::{CleanupEvent, TargetEvent};
 
-use bevy::{
-    app::{App, Plugin},
-    ecs::entity::Entity,
-};
+use bevy_ecs::{entity::Entity, event::Events, world::World};
 
 /// A type to enable wildcard APIs
 pub enum Var<T> {
@@ -131,15 +125,21 @@ impl From<Entity> for Var<Entity> {
     }
 }
 
-pub struct Aery;
-
-impl Plugin for Aery {
-    fn build(&self, app: &mut App) {
-        app.init_resource::<RefragmentHooks>()
-            .add_event::<TargetEvent>()
-            .add_event::<CleanupEvent>();
-    }
+pub fn init_aery(world: &mut World) {
+    world.insert_resource::<RefragmentHooks>(Default::default());
+    world.insert_resource(Events::<TargetEvent>::default());
+    world.insert_resource(Events::<CleanupEvent>::default());
 }
+
+// pub struct Aery;
+
+// impl Plugin for Aery {
+//     fn build(&self, app: &mut App) {
+//         app.init_resource::<RefragmentHooks>()
+//             .add_event::<TargetEvent>()
+//             .add_event::<CleanupEvent>();
+//     }
+// }
 
 pub mod prelude {
     pub use super::Var::{self, Wc};
@@ -153,7 +153,7 @@ pub mod prelude {
         relation::{CheckRelations, CleanupPolicy, Participates, Relation, Root, ZstOrPanic},
         scope::Scope,
         tuple_traits::{Joinable, RelationSet},
-        Aery,
+        init_aery,
     };
     pub use aery_macros::*;
 }

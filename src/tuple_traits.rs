@@ -2,13 +2,11 @@ use crate::{
     operations::EdgeProduct,
     relation::{EdgeWQItem, Participates, Relation},
 };
-use bevy::{
-    ecs::{
-        entity::Entity,
-        query::{ReadOnlyWorldQuery, WorldQuery},
-        system::Query,
-    },
-    utils::all_tuples,
+use bevy_ecs::{
+    entity::Entity,
+    query::{ReadOnlyWorldQuery, WorldQuery},
+    system::Query,
+    all_tuples,
 };
 
 mod sealed {

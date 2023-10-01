@@ -3,11 +3,9 @@ use crate::{
     relation::{Relation, ZstOrPanic},
 };
 
-use bevy::{
-    ecs::{entity::Entity, system::Command, world::EntityMut},
-    log::warn,
-};
+use bevy_ecs::{entity::Entity, system::Command, world::EntityMut};
 
+use log::*;
 use std::marker::PhantomData;
 
 /// An extension API for `EntityMut<'_>` to make spawning and changing relation graphs easier.

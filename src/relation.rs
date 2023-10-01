@@ -1,17 +1,15 @@
 use crate::Var;
 
-use bevy::{
-    ecs::{
-        component::Component,
-        entity::Entity,
-        query::{Or, With, WorldQuery},
-        world::{EntityMut, EntityRef},
-    },
-    utils::HashMap,
+use bevy_ecs::{
+    component::Component,
+    entity::Entity,
+    query::{Or, With, WorldQuery},
+    world::{EntityMut, EntityRef},
 };
 
 use core::any::TypeId;
 use indexmap::IndexSet;
+use std::collections::HashMap;
 use std::marker::PhantomData;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -60,7 +58,7 @@ pub struct Participates<R: Relation> {
 /// In effect the summation of their cleanup is applied.
 /// ## Illustration
 /// ```
-/// use bevy::prelude::*;
+/// use bevy_ecs::prelude::*;
 /// use aery::prelude::*;
 ///
 /// #[derive(Relation)]
@@ -186,7 +184,7 @@ pub(crate) struct Edges {
 }
 
 type EdgeIter<'a> = std::iter::Flatten<
-    std::option::IntoIter<std::iter::Copied<indexmap::set::Iter<'a, bevy::prelude::Entity>>>,
+    std::option::IntoIter<std::iter::Copied<indexmap::set::Iter<'a, bevy_ecs::prelude::Entity>>>,
 >;
 
 impl Edges {
@@ -216,7 +214,7 @@ pub struct EdgeWQ {
 pub trait CheckRelations {
     /// Check if another entity is targeting this one via a relation.
     /// ```
-    ///# use bevy::prelude::*;
+    ///# use bevy_ecs::prelude::*;
     ///# use aery::{prelude::*, relation::EdgeWQItem};
     ///#
     ///# #[derive(Relation)]
@@ -237,7 +235,7 @@ pub trait CheckRelations {
 
     /// Check if entity is targeting another via a relation.
     /// ```
-    ///# use bevy::prelude::*;
+    ///# use bevy_ecs::prelude::*;
     ///# use aery::{prelude::*, relation::EdgeWQItem};
     ///#
     ///# #[derive(Relation)]
